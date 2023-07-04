@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">project_sam_user</string>
+    <string name="DB_URL">https://project-sample-63723-default-rtdb.asia-southeast1.firebasedatabase.app</string>
+    <string name="admin">jeevarag1016@gmail.com</string>
+    <string name="admin_pswd">Admin_User_@2023</string>
+    <string name="forget_password"><u>Forget Password ?</u></string>
+</resources>

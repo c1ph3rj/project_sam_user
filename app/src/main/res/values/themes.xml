@@ -1,0 +1,20 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Project_sam_user" parent="Theme.Material3.Light.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/color1</item>
+    </style>
+
+    <style name="TextInputLayoutHintText">
+        <item name="android:textColor">@color/color1</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="prefix" parent="Base.TextAppearance.AppCompat.Body2">
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="Theme.Project_sam_user" parent="Base.Theme.Project_sam_user" />
+</resources>
