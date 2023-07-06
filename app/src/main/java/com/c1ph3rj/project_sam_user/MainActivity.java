@@ -67,14 +67,11 @@ public class MainActivity extends AppCompatActivity {
                         alert.withTitleAndMessage("Alert!", "Something went wrong please try again Later!")
                                 .setPositiveButton("Ok", (dialogInterface, i) -> finishAffinity());
                     }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        e.printStackTrace();
-                        loadingDialog.dismiss();
-                        alert.withTitleAndMessage("Alert!", "Something went wrong please try again Later!")
-                                .setPositiveButton("Ok", (dialogInterface, i) -> finishAffinity());
-                    }
+                }).addOnFailureListener(e -> {
+                    e.printStackTrace();
+                    loadingDialog.dismiss();
+                    alert.withTitleAndMessage("Alert!", "Something went wrong please try again Later!")
+                            .setPositiveButton("Ok", (dialogInterface, i) -> finishAffinity());
                 });
     }
 }

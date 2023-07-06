@@ -3,21 +3,37 @@ package com.c1ph3rj.project_sam_user.loginpkg;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.c1ph3rj.project_sam_user.R;
+import com.c1ph3rj.project_sam_user.commonpkg.AgentDetailModel;
 import com.c1ph3rj.project_sam_user.commonpkg.Alert;
+import com.c1ph3rj.project_sam_user.commonpkg.DatabaseHelper;
+import com.c1ph3rj.project_sam_user.commonpkg.LoadingDialog;
+import com.c1ph3rj.project_sam_user.dashboardpkg.DashboardScreen;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
 
@@ -30,6 +46,11 @@ public class LoginScreen extends AppCompatActivity {
     LinearLayout loginLayout;
     FirebaseDatabase firebaseDb;
     DatabaseReference usersRef;
+    FirebaseAuth firebaseAuth;
+    LoadingDialog loadingDialog;
+    String emailId;
+    FirebaseFirestore fireStoreDb;
+    CollectionReference userDetailsRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +66,11 @@ public class LoginScreen extends AppCompatActivity {
         try{
             alert = new Alert(this);
             firebaseDb = FirebaseDatabase.getInstance(getString(R.string.DB_URL));
+            firebaseAuth = FirebaseAuth.getInstance();
             usersRef = firebaseDb.getReference("Users");
+            fireStoreDb = FirebaseFirestore.getInstance();
+            userDetailsRef = fireStoreDb.collection("Users");
+            loadingDialog = new LoadingDialog(this);
             loginLayout = findViewById(R.id.loginLayout);
             agentCodeField = findViewById(R.id.agentCodeField);
             agentCodeFieldLayout = findViewById(R.id.agentCodeLayout);
@@ -92,15 +117,13 @@ public class LoginScreen extends AppCompatActivity {
             }
 
             if(!agentPassword.matches("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{5,}$")){
-                alert.withTitleAndMessage("Alert!"," Please create a password with a minimum length of 6 characters, including at least one letter (a-z/A-Z), one number (0-9), and one special character: [@ $ ! % * # ? &].")
-                        .setPositiveButton("Ok", (dialogInterface, i) -> dialogInterface.dismiss())
-                        .show();
                 passwordFieldLayout.setError("Please enter a valid password!");
                 return;
             }else {
                 passwordFieldLayout.setErrorEnabled(false);
             }
 
+            loadingDialog.show();
             loginWithCredentials(agentCode, agentPassword);
         }catch (Exception e){
             e.printStackTrace();
@@ -116,19 +139,82 @@ public class LoginScreen extends AppCompatActivity {
                     boolean agentFound = false;
 
                     for (DataSnapshot agentSnapshot : dataSnapshot.getChildren()) {
-                        System.out.println(agentSnapshot.child("agentName"));
                         String storedPassword = agentSnapshot.child("password").getValue(String.class);
-
                         if (password.equals(storedPassword)) {
-                            String emailId = agentSnapshot.child("emailId").getValue(String.class);
-                            System.out.println("Agent email ID: " + emailId);
+                            emailId = agentSnapshot.child("emailId").getValue(String.class);
                             agentFound = true;
-                            break;
+                        }else{
+                            passwordFieldLayout.setError("Incorrect password!");
+                            loadingDialog.dismiss();
+                            return;
                         }
+                        break;
                     }
 
-                    if (!agentFound) {
-                        System.out.println("Invalid agent code or password.");
+                    if (!agentFound && emailId == null) {
+                        loadingDialog.dismiss();
+                        alert.withTitleAndMessage("Alert","Agent Not Found, Please contact Admin.")
+                                .setPositiveButton("Ok", (dialogInterface, i) -> dialogInterface.dismiss()).show();
+                    }else{
+                        assert emailId != null;
+                        firebaseAuth.signInWithEmailAndPassword(emailId, password)
+                                .addOnCompleteListener(task -> {
+                                    if(task.isSuccessful()){
+                                        try {
+                                            AuthResult result = task.getResult();
+                                            userDetailsRef.document(Objects.requireNonNull(result.getUser()).getUid())
+                                                    .get()
+                                                    .addOnCompleteListener(task1 -> {
+                                                        if(task1.isSuccessful()){
+                                                            DocumentSnapshot document = task1.getResult();
+                                                            if (document != null && document.exists()) {
+                                                                String agentCode1 = document.getString("agentCode");
+                                                                String agentName = document.getString("agentName");
+                                                                String agentType = document.getString("agentType");
+                                                                String emailId = document.getString("emailId");
+                                                                String mobileNumber = document.getString("mobileNumber");
+                                                                String password1 = document.getString("password");
+                                                                String address = document.getString("address");
+
+                                                                // Create an AgentDetailModel object with the retrieved details
+                                                                AgentDetailModel agent = new AgentDetailModel();
+                                                                agent.agentCode = agentCode1;
+                                                                agent.agentName = agentName;
+                                                                agent.agentType = agentType;
+                                                                agent.emailId = emailId;
+                                                                agent.mobileNumber = mobileNumber;
+                                                                agent.address = address;
+
+                                                                DatabaseHelper localDbHelper = new DatabaseHelper(LoginScreen.this);
+                                                                localDbHelper.addAgentDetail(agent);
+                                                                localDbHelper.close();
+                                                            }
+                                                            startActivity(new Intent(LoginScreen.this, DashboardScreen.class));
+                                                            loadingDialog.dismiss();
+                                                        }else {
+                                                            loadingDialog.dismiss();
+                                                            alert.somethingWentWrong();
+                                                        }
+                                                    }).addOnFailureListener(e -> {
+                                                        e.printStackTrace();
+                                                        loadingDialog.dismiss();
+                                                        alert.somethingWentWrong();
+                                                    });
+                                        }catch (Exception e){
+                                            e.printStackTrace();
+                                            loadingDialog.dismiss();
+                                            alert.somethingWentWrong();
+                                        }
+                                    }else{
+                                        loadingDialog.dismiss();
+                                        alert.somethingWentWrong();
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    e.printStackTrace();
+                                    loadingDialog.dismiss();
+                                    alert.somethingWentWrong();
+                                });
                     }
                 }
 
