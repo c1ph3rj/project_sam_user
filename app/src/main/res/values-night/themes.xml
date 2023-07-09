@@ -3,7 +3,7 @@
     <style name="Base.Theme.Project_sam_user" parent="Theme.Material3.Light.NoActionBar">
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
-        <item name="colorPrimary">@color/color1</item>
+        <item name="colorPrimary">@color/color2</item>
     </style>
     <style name="TextInputLayoutHintText">
         <item name="android:textColor">@color/color1</item>
@@ -13,5 +13,9 @@
 
     <style name="prefix" parent="Base.TextAppearance.AppCompat.Body2">
         <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="BottomNavigationStyle" parent="@style/Theme.MaterialComponents.Light">
+        <item name="colorPrimary">@color/color2</item>
     </style>
 </resources>

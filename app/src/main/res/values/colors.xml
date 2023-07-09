@@ -7,4 +7,27 @@
     <color name="color2">#176B87</color>
     <color name="color3">#64CCC5</color>
     <color name="color4">#DAFFFB</color>
+
+    <!-- Successful Payment -->
+    <color name="payment_success">#00C851</color>
+
+    <!-- Pending Payment -->
+    <color name="payment_pending">#FFBB33</color>
+
+    <!-- Failed Payment -->
+    <color name="payment_failed">#FF4444</color>
+
+    <!-- Processing Payment -->
+    <color name="payment_processing">#33B5E5</color>
+
+    <!-- Refunded Payment -->
+    <color name="payment_refunded">#AA66CC</color>
+
+    <!-- Partially Paid -->
+    <color name="payment_partially_paid">#FF8800</color>
+
+    <!-- Cancelled Payment -->
+    <color name="payment_cancelled">#777777</color>
+
+    <color name="lightGrey">#5EABA6</color>
 </resources>
