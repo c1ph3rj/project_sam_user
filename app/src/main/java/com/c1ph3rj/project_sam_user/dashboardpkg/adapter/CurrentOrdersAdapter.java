@@ -1,6 +1,7 @@
 package com.c1ph3rj.project_sam_user.dashboardpkg.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +12,9 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.c1ph3rj.project_sam_user.R;
+import com.c1ph3rj.project_sam_user.dashboardpkg.DashboardScreen;
 import com.c1ph3rj.project_sam_user.dashboardpkg.model.OrderDetailsModel;
+import com.c1ph3rj.project_sam_user.neworderpkg.NewOrderScreen;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
@@ -19,9 +22,11 @@ import java.util.ArrayList;
 public class CurrentOrdersAdapter extends RecyclerView.Adapter<CurrentOrdersAdapter.ViewHolder> {
     ArrayList<OrderDetailsModel> listOfOrders;
     Context context;
+    DashboardScreen dashboardScreen;
 
     public CurrentOrdersAdapter(ArrayList<OrderDetailsModel> listOfOrders, Context context) {
         this.context = context;
+        this.dashboardScreen = (DashboardScreen) context;
         this.listOfOrders = listOfOrders;
     }
 
@@ -39,10 +44,16 @@ public class CurrentOrdersAdapter extends RecyclerView.Adapter<CurrentOrdersAdap
             if (listOfOrders.size() == 0) {
                 holder.addNewOrderLayout.setVisibility(View.VISIBLE);
                 holder.orderDetailsLayout.setVisibility(View.GONE);
+                holder.addNewOrderLayout.setOnClickListener(onClickAddNew ->{
+                    dashboardScreen.showCustomDialog();
+                });
             }else {
                 if(position == 0){
                     holder.addNewOrderLayout.setVisibility(View.VISIBLE);
                     holder.orderDetailsLayout.setVisibility(View.GONE);
+                    holder.addNewOrderLayout.setOnClickListener(onClickAddNew ->{
+                        dashboardScreen.showCustomDialog();
+                    });
                     return;
                 }else {
                     holder.addNewOrderLayout.setVisibility(View.GONE);

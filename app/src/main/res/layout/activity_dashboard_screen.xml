@@ -128,6 +128,8 @@
                 android:layout_height="200dp"
                 android:layout_gravity="center"
                 android:contentDescription="cnt"
+                android:padding="20dp"
+                android:layout_margin="20dp"
                 android:id="@+id/noRecordsView"
                 android:src="@drawable/no_records_ic"/>
 
@@ -145,6 +147,7 @@
         android:layout_height="50dp"
         android:background="@color/color4"
         app:itemIconSize="26dp"
+        android:id="@+id/bottomNavMenu"
         app:menu="@menu/bottom_nav_menu"
         app:itemIconTint="@drawable/bottom_nav_icon_colors"
         app:itemActiveIndicatorStyle="@style/Theme.MaterialComponents.Light"
