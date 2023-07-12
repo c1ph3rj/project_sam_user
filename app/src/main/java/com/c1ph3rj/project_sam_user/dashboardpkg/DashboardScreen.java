@@ -13,6 +13,8 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -160,8 +162,16 @@ public class DashboardScreen extends AppCompatActivity {
         // Create a dialog instance
         Dialog customDialog = new Dialog(this);
         customDialog.setContentView(R.layout.choose_category_layout);
-        customDialog.getWindow().setBackgroundDrawable(null);
         customDialog.setTitle("Custom Dialog");
+
+        Window window = customDialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawable(null);
+            WindowManager.LayoutParams layoutParams = window.getAttributes();
+            layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;  // Set the desired width
+            layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT; // Set the desired height
+            window.setAttributes(layoutParams);
+        }
 
         // Find views within the custom dialog layout
         ImageView closeButton = customDialog.findViewById(R.id.backBtn);
